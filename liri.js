@@ -8,6 +8,7 @@ var spotify = new Spotify(keys.spotify);
 var client = new Twitter(keys.twitter);
 
 var userInput = process.argv[2];
+var searchTerm = process.argv[3];
 
 
 switch (userInput) {
@@ -17,7 +18,7 @@ switch (userInput) {
 		break;
 	case "spotify-this-song":
 		console.log("spotify-this-song");
-		spotifySong();
+		spotifySong(searchTerm);
 		break;
 	default:
 		console.log("no user input match");
@@ -34,7 +35,27 @@ function myTweets(){
 	})
 }
 
-function spotifySong(){
+function spotifySong(searchTerm){
+	if (!searchTerm){
+		searchTerm = "The Sign";
+	}
 
+	spotify.search({ type: "track", query: searchTerm}, function(error, data) {
+		if (error) {
+			return console.log("Error Occured: " + error);
+		}
+		for (i = 0; i < 20; i++){
+			var artistName = data.tracks.items[i].album.artists[0].name;
+			var trackName = data.tracks.items[i].name;
+			var albumName = data.tracks.items[i].album.name;
+			var previewUrl = data.tracks.items[i].preview_url;
+			
+			console.log(artistName);
+			console.log(trackName);
+			console.log(albumName);
+			console.log(previewUrl);
+			console.log("---------------------------");
+		}
+	})
 }
 

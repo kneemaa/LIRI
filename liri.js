@@ -11,7 +11,15 @@ var client = new Twitter(keys.twitter);
 
 var userInput = process.argv[2];
 var searchTerm = process.argv[3];
+var logOutput = "*---------------------------------------------------*\n";
 
+
+
+if (searchTerm){
+	logOutput += userInput + " " + searchTerm + "\n";
+} else {
+	logOutput += userInput + "\n";
+}
 
 switch (userInput) {
 	case "my-tweets":
@@ -48,10 +56,14 @@ function myTweets(){
 	client.get("statuses/user_timeline", twitterHandle, function(error, tweets, response) {
 		if (!error){
 			for (i = 0; i < 20; i++){
-				console.log(tweets[i].text);	
+				var tweet = tweets[i].text;
+				logOutput += tweet + "\n";
+				console.log(tweet);	
 			}
 		}
+		log();
 	})
+
 }
 
 function spotifySong(searchTerm){
@@ -61,6 +73,7 @@ function spotifySong(searchTerm){
 
 	spotify.search({ type: "track", query: searchTerm}, function(error, data) {
 		if (error) {
+			logOutput += "Error Occured: " + error + "\n";
 			return console.log("Error Occured: " + error);
 		}
 		
@@ -69,26 +82,33 @@ function spotifySong(searchTerm){
 		var albumName = data.tracks.items[0].album.name;
 		var previewUrl = data.tracks.items[0].preview_url;
 		
+		logOutput += "Artist: " + artistName + "\n";
+		logOutput += "Track: " + trackName + "\n";
+		logOutput += "Album: " + albumName + "\n";
+		logOutput += "Preview Url: " + previewUrl + "\n";
+
 		console.log("Artist: " + artistName);
 		console.log("Track: " + trackName);
 		console.log("Album: " + albumName);
 		console.log("Preview Url: " + previewUrl);
-		
+		log();
 	})
 }
 
 
 function movieSearch(searchTerm) {
 	if (!searchTerm){
-		return console.log("You need to define your search parameters");
+		searchTerm = "Mr. Nobody";
 	}
+
 	request("http://www.omdbapi.com/?t="+searchTerm+"&y=&plot=short&apikey=trilogy", function(error, response, body) {
-	if (!body.response){
-		return console.log("No Results, Try a real movie");
+	
+	if (JSON.parse(body).Response === "False"){
+		return console.log("Movie not found!");
 	}
+
 	if (!error && response.statusCode === 200) {
 
-	    /*console.log(JSON.parse(body));*/
 	    console.log("Title: " + JSON.parse(body).Title);
 	    console.log("Year Released: " + JSON.parse(body).Year);
 	    console.log("IMDB Rating: " + JSON.parse(body).Ratings[0].Value);
@@ -97,7 +117,18 @@ function movieSearch(searchTerm) {
 	    console.log("Language: " + JSON.parse(body).Language);
 	    console.log("Plot: " + JSON.parse(body).Plot);
 	    console.log("Actors: " + JSON.parse(body).Actors);
+
+	    logOutput += "Title: " + JSON.parse(body).Title + "\n";
+	    logOutput += "Year Released: " + JSON.parse(body).Year + "\n";
+	    logOutput += "IMDB Rating: " + JSON.parse(body).Ratings[0].Value + "\n";
+	    logOutput += "Rotten Tomatoes Rating: " + JSON.parse(body).Ratings[1].Value + "\n";
+	    logOutput += "Country of Production: " + JSON.parse(body).Country + "\n";
+	    logOutput += "Language: " + JSON.parse(body).Language + "\n";
+	    logOutput += "Plot: " + JSON.parse(body).Plot + "\n";
+	    logOutput += "Actors: " + JSON.parse(body).Actors + "\n";
 	  }
+
+	log();
 	});
 }
 
@@ -122,6 +153,15 @@ function random(){
 				console.log("Unknown Input in random.txt");
 		}
 
+	})
+}
+
+function log(){
+	logOutput += "*---------------------------------------------------*\n";
+	fs.appendFile("log.txt", logOutput, function(error){
+		if (error) {
+			console.log(error);
+		}
 	})
 }
 

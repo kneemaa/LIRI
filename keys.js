@@ -1,4 +1,3 @@
-console.log("this is loaded");
 
 var twitter = {
 		consumer_key: process.env.TWITTER_CONSUMER_KEY,
